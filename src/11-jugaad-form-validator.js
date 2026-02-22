@@ -62,5 +62,69 @@
  *   // => { isValid: false, errors: { name: "...", email: "...", ... } }
  */
 export function validateForm(formData) {
-  // Your code here
+    // Your code here
+    if (typeof formData !== "object" || formData === null || Array.isArray(formData)) return null;
+
+    const answers = {
+        name:
+            typeof formData.name === "string" &&
+                formData.name.trim().length >= 2 &&
+                formData.name.trim().length <= 50
+                ? true
+                : "Name must be 2-50 characters",
+
+        email:
+            typeof formData.email === "string" &&
+                formData.email.split("").includes("@") &&
+                !formData.email.split("").includes("@", formData.email.indexOf("@") + 1) &&
+                formData.email.split("").includes(".", formData.email.indexOf("@"))
+                ? true
+                : "Invalid email format",
+        phone:
+            typeof formData.phone === "string" &&
+                formData.phone.length === 10 &&
+                /[6-9]/.test(formData.phone[0])
+                &&
+                [...formData.phone].every((e) => e >= "0" && e <= "9")
+                ? true
+                : "Invalid Indian phone number",
+        age:
+            (parseInt(formData.age) >= 16 && parseInt(formData.age) <= 100 && Number.isInteger(Number(formData.age)))
+                ? true
+                : "Age must be an integer between 16 and 100",
+        pincode:
+            typeof formData.pincode === "string" &&
+                formData.pincode.length === 6 &&
+                formData.pincode[0] !== "0" &&
+                [...formData.pincode].every((e) => e >= "0" && e <= "9")
+                ? true
+                : "Invalid Indian pincode",
+        state:
+            typeof formData.state === "string" && (formData?.state ?? false)
+                ? true
+                : "State is required",
+        agreeTerms:
+            formData.agreeTerms !== 0 &&
+                formData.agreeTerms !== "" &&
+                formData.agreeTerms !== null &&
+                formData.agreeTerms !== undefined &&
+                formData.agreeTerms !== NaN &&
+                formData.agreeTerms !== false
+                ? true
+                : "Must agree to terms",
+    };
+
+    const error = {}
+    for (const [key, value] of Object.entries(answers)) {
+        if (value !== true) {
+            error[key] = value
+        }
+    }
+
+    return {
+        isValid: (Object.entries(error).length === 0) ? true : false,
+        errors: error
+    }
+
+
 }

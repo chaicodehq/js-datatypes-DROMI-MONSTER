@@ -47,5 +47,59 @@
  *   //      frequentContact: "Swiggy", allAbove100: false, hasLargeTransaction: true }
  */
 export function analyzeUPITransactions(transactions) {
-  // Your code here
+    // Your code here
+    if (!Array.isArray(transactions) || transactions.length === 0|| transactions === null) return null;
+
+    const filteredTransactions = transactions.filter((e) => (e.amount > 0 && (e.type.toLowerCase() === "credit" || e.type.toLowerCase() === "debit")));
+
+    if (filteredTransactions.length === 0) return null;
+
+    const totalCreditDebitAmount = filteredTransactions.reduce(
+        (prev, curr) =>
+            (curr.type.toLowerCase() === "credit")
+                ? { credit: prev.credit + curr.amount, debit: prev.debit }
+                : { credit: prev.credit, debit: prev.debit + curr.amount },
+        { credit: 0, debit: 0 });
+
+    const netBalance = totalCreditDebitAmount.credit - totalCreditDebitAmount.debit;
+
+    const transactionCount = filteredTransactions.length;
+
+    const avgTransaction = Math.round((totalCreditDebitAmount.credit + totalCreditDebitAmount.debit) / transactionCount)
+
+    const highestTransaction = filteredTransactions.reduce(
+        (prev, curr) =>
+            (curr.amount > prev.amount) ? curr : prev)
+
+    const categoryBreakdown = filteredTransactions.reduce((prev, curr) =>
+        prev[curr.category]
+            ? { ...prev, [curr.category]: prev[curr.category] + curr.amount }
+            : { ...prev, [curr.category]: curr.amount },
+        {}
+    );
+
+    const frequentContact = Object.entries(filteredTransactions.reduce(
+        (prev, curr) =>
+            prev[curr.to]
+                ? { ...prev, [curr.to]: prev[curr.to] + 1 }
+                : { ...prev, [curr.to]: 1 },
+        {},
+    )).reduce((prev, curr) => (prev[1] < curr[1]) ? curr : prev)[0];
+
+    const allAbove100 = filteredTransactions.every((e) => e.amount > 100);
+
+    const hasLargeTransaction = filteredTransactions.some((e) => e.amount >= 5000);
+
+    return {
+        totalCredit: totalCreditDebitAmount.credit,
+        totalDebit: totalCreditDebitAmount.debit,
+        netBalance: netBalance,
+        transactionCount: transactionCount,
+        avgTransaction: avgTransaction,
+        highestTransaction: highestTransaction,
+        categoryBreakdown: categoryBreakdown,
+        frequentContact: frequentContact,
+        allAbove100: allAbove100,
+        hasLargeTransaction: hasLargeTransaction
+    }
 }

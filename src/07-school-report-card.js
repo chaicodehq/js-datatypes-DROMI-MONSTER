@@ -41,5 +41,52 @@
  *   // => { name: "Priya", totalMarks: 63, percentage: 31.5, grade: "F", ... }
  */
 export function generateReportCard(student) {
-  // Your code here
+    // Your code here
+    if (typeof student !== "object" || student === null || Array.isArray(student)) {
+        return null;
+    }
+    if (typeof student.name !== "string" || student.name === "" || student.name === null) {
+        return null;
+    }
+    if (typeof student.marks !== "object" || Array.isArray(student) || Object.keys(student.marks).length === 0) {
+        return null;
+    }
+    if (Object.entries(student.marks).every((obj) => ((typeof obj[1] === "number") && (obj[1] >= 0 && obj[1] <= 100)))) {
+        const marksArray = Object.values(student.marks);
+        const totalMarks = marksArray.reduce((prev, current) => (prev + current), 0);
+        const percentage = parseFloat(((totalMarks / (marksArray.length * 100)) * 100).toFixed(2));
+        // console.log(percentage);
+        let grade;
+        if (percentage >= 90) {
+            grade = "A+";
+        } else if (percentage >= 80) {
+            grade = "A";
+        } else if (percentage >= 70) {
+            grade = "B";
+        } else if (percentage >= 60) {
+            grade = "C";
+        } else if (percentage >= 40) {
+            grade = "D";
+        } else {
+            grade = "F";
+        }
+
+        const highestSubject = Object.entries(student.marks).reduce((prev, current) => prev[1] < current[1] ? current : prev)[0];
+        const lowestSubject = Object.entries(student.marks).reduce((prev, current) => prev[1] > current[1] ? current : prev)[0];
+        const passedSubjects = Object.entries(student.marks).filter((mark) => mark[1] >= 40).map(mark => mark[0]);
+        const failedSubjects = Object.entries(student.marks).filter((mark) => mark[1] < 40).map(mark => mark[0]);
+        return {
+            name: student.name,
+            totalMarks: totalMarks,
+            percentage: percentage,
+            grade: grade,
+            highestSubject: highestSubject,
+            lowestSubject: lowestSubject,
+            passedSubjects: passedSubjects,
+            failedSubjects: failedSubjects,
+            subjectCount: Object.entries(student.marks).length
+        }
+    } else {
+        return null;
+    }
 }
